@@ -67,17 +67,17 @@ You can install Postman via this website: https://www.postman.com/downloads/
     -   [x] Commit: `Implement add function in Notification repository.`
     -   [x] Commit: `Implement list_all_as_string function in Notification repository.`
     -   [x] Write answers of your learning module's "Reflection Subscriber-1" questions in this README.
--   **STAGE 3: Implement services and controllers**
-    -   [ ] Commit: `Create Notification service struct skeleton.`
-    -   [ ] Commit: `Implement subscribe function in Notification service.`
-    -   [ ] Commit: `Implement subscribe function in Notification controller.`
-    -   [ ] Commit: `Implement unsubscribe function in Notification service.`
-    -   [ ] Commit: `Implement unsubscribe function in Notification controller.`
-    -   [ ] Commit: `Implement receive_notification function in Notification service.`
-    -   [ ] Commit: `Implement receive function in Notification controller.`
-    -   [ ] Commit: `Implement list_messages function in Notification service.`
-    -   [ ] Commit: `Implement list function in Notification controller.`
-    -   [ ] Write answers of your learning module's "Reflection Subscriber-2" questions in this README.
+-   **STAGE 2: Implement services and controllers**
+    -   [x] Commit: `Create Notification service struct skeleton.`
+    -   [x] Commit: `Implement subscribe function in Notification service.`
+    -   [x] Commit: `Implement subscribe function in Notification controller.`
+    -   [x] Commit: `Implement unsubscribe function in Notification service.`
+    -   [x] Commit: `Implement unsubscribe function in Notification controller.`
+    -   [x] Commit: `Implement receive_notification function in Notification service.`
+    -   [x] Commit: `Implement receive function in Notification controller.`
+    -   [x] Commit: `Implement list_messages function in Notification service.`
+    -   [x] Commit: `Implement list function in Notification controller.`
+    -   [x] Write answers of your learning module's "Reflection Subscriber-2" questions in this README.
 
 ## Your Reflections
 This is the place for you to write reflections:
@@ -95,3 +95,17 @@ This is the place for you to write reflections:
     We also used the lazy_static external library to define Vec and DashMap as static variables because Rust enforces strict ownership and borrowing rules to ensure memory safety and prevent data races. Unlike Java, where static variables can be mutated directly within static functions, Rust does not allow direct mutation of static variables because they exist globally and could lead to undefined behavior due to concurrent access. Rust requires explicit synchronization mechanisms, such as RwLock<> or Mutex<>, to safely mutate shared static data, ensuring that changes happen in a controlled manner. This design choice enforces thread safety at the language level, preventing common concurrency issues such as race conditions and deadlocks.
 
 #### Reflection Subscriber-2
+
+1. Have you explored things outside of the steps in the tutorial, for example: src/lib.rs? If not, explain why you did not do so. If yes, explain things that you have learned from those other parts of code.
+
+    I have only explored lib.rs and learned that it plays a crucial role in managing global configurations, HTTP client setup, and error handling. It defines REQWEST_CLIENT as a global reqwest::Client to optimize HTTP requests and APP_CONFIG to manage application settings dynamically using lazy_static! and dotenvy. Additionally, lib.rs provides a structured approach to error handling with Result<T, E> and ErrorResponse, ensuring consistency in error messages. However, I have not yet explored other parts of the code beyond what was covered in the tutorial.
+
+2. Since you have completed the tutorial by now and have tried to test your notification system by spawning multiple instances of Receiver, explain how Observer pattern eases you to plug in more subscribers. How about spawning more than one instance of Main app, will it still be easy enough to add to the system?
+
+    The Observer pattern simplifies adding more subscribers because it decouples the publisher (Main app) from the subscribers (Receiver instances). Each new subscriber simply registers itself, and the system ensures they receive notifications when an event occurs. Since the notification logic is abstracted in the NotificationService, adding new subscribers does not require modifying the publisher’s code.
+
+    However, if we spawn multiple instances of the Main app, things become more complex. Since each instance manages its own in-memory subscriber list, there is no built-in synchronization across instances. This means that a subscriber registered in one instance might not be recognized by another. To make the system scalable, we would need a shared storage mechanism, such as a database or distributed cache, to ensure all instances have access to the same subscriber list.
+
+3. Have you tried to make your own Tests, or enhance documentation on your Postman collection? If you have tried those features, tell us whether it is useful for your work (it can be your tutorial work or your Group Project).
+
+    I have created multiple instances of the Receiver app, each listening on different ports (8001, 8002, and 8003) by modifying the .env file to change the ROCKET_PORT and APP_INSTANCE_NAME variables. After running cargo run in separate terminals for each instance, I also ran one instance of the Main app. Using the provided Postman collection, I tested the subscription process by subscribing different Receiver instances to different product types. After executing the create Product, publish Product, and delete Product endpoints in the Main app, I verified that the correct notifications were received by each Receiver instance. This process confirmed that the Observer pattern effectively allows multiple subscribers to receive updates dynamically. Additionally, by testing different product types, I ensured that notifications were routed correctly to the appropriate Receiver instances. Postman was useful in simplifying the testing process by allowing me to easily send requests and verify responses.
